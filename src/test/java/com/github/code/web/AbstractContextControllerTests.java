@@ -1,4 +1,4 @@
-package com.soecode.lyf.web;
+package com.github.code.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;

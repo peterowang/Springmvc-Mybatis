@@ -1,4 +1,4 @@
-package com.soecode.lyf;
+package com.github.code;
 
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
