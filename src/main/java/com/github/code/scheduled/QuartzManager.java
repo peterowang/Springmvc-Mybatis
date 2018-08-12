@@ -1,5 +1,5 @@
 package com.github.code.scheduled;
-import com.github.code.quartz.DynamicJobQuartz;
+
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.stereotype.Component;
@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 
 /**
  * 定时任务动态加载
+ * @author WANGJING
  */
 @Component
 public class QuartzManager {
@@ -27,26 +28,27 @@ public class QuartzManager {
      * @param cron   时间设置，参考quartz说明文档
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static void addJob(String jobName, String jobGroupName,
+    public void addJob(String jobName, String jobGroupName,
                               String triggerName, String triggerGroupName, Class jobClass, String cron) {
         try {
-            Scheduler sched = schedulerFactory.getScheduler();
+            Scheduler scheduled = schedulerFactory.getScheduler();
             // 任务名，任务组，任务执行类
             JobDetail jobDetail= JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroupName).build();
             // 触发器
             TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
             // 触发器名,触发器组
             triggerBuilder.withIdentity(triggerName, triggerGroupName);
+            //使用这句可以防止定时器弥补
             triggerBuilder.startNow();
-            // 触发器时间设定
-            triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cron));
+            // 触发器时间设定,不触发立即执行,等待下次Cron触发频率到达时刻开始按照Cron频率依次执行
+            triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cron).withMisfireHandlingInstructionDoNothing());
             // 创建Trigger对象
             CronTrigger trigger = (CronTrigger) triggerBuilder.build();
             // 调度容器设置JobDetail和Trigger
-            sched.scheduleJob(jobDetail, trigger);
+            scheduled.scheduleJob(jobDetail, trigger);
             // 启动
-            if (!sched.isShutdown()) {
-                sched.start();
+            if (!scheduled.isShutdown()) {
+                scheduled.start();
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -61,7 +63,7 @@ public class QuartzManager {
      * @param cron             时间设置，参考quartz说明文档
      * @Description: 修改一个任务的触发时间
      */
-    public static void modifyJobTime(String jobName, String jobGroupName, String triggerName, String triggerGroupName, String cron) {
+    public void modifyJobTime(String jobName, String jobGroupName, String triggerName, String triggerGroupName, String cron) {
         try {
             Scheduler sched = schedulerFactory.getScheduler();
             TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
@@ -104,7 +106,7 @@ public class QuartzManager {
      * @param triggerName
      * @param triggerGroupName
      */
-    public static void removeJob(String jobName, String jobGroupName,
+    public void removeJob(String jobName, String jobGroupName,
                                  String triggerName, String triggerGroupName) {
         try {
             Scheduler sched = schedulerFactory.getScheduler();
@@ -124,7 +126,7 @@ public class QuartzManager {
     /**
      * @Description:启动所有定时任务
      */
-    public static void startJobs() {
+    public void startJobs() {
         try {
             Scheduler sched = schedulerFactory.getScheduler();
             sched.start();
@@ -136,7 +138,7 @@ public class QuartzManager {
     /**
      * @Description:关闭所有定时任务
      */
-    public static void shutdownJobs() {
+    public void shutdownJobs() {
         try {
             Scheduler sched = schedulerFactory.getScheduler();
             if (!sched.isShutdown()) {
@@ -149,6 +151,7 @@ public class QuartzManager {
 
     @PostConstruct
     private void init(){
-        addJob("execute", "execute", "动态任务触发器", "动态任务触发器", DynamicJobQuartz.class, "0/5 * * * * ? ");
+//        Todo init
+//        addJob("execute", "execute", "动态任务触发器", "动态任务触发器", DynamicJobQuartz.class, "0/5 * * * * ? ");
     }
 }

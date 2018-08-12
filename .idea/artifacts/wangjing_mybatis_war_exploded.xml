@@ -43,6 +43,7 @@
           <element id="library" level="project" name="Maven: commons-collections:commons-collections:3.2" />
           <element id="library" level="project" name="Maven: org.springframework:spring-context-support:4.0.5.RELEASE" />
           <element id="library" level="project" name="Maven: org.quartz-scheduler:quartz:2.2.1" />
+          <element id="library" level="project" name="Maven: org.projectlombok:lombok:1.12.6" />
         </element>
       </element>
       <element id="directory" name="META-INF">

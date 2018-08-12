@@ -66,5 +66,6 @@
     <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context-support:4.0.5.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.quartz-scheduler:quartz:2.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.12.6" level="project" />
   </component>
 </module>
