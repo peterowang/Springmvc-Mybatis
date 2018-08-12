@@ -2,10 +2,14 @@ package com.github.code.scheduled;
 import com.github.code.quartz.DynamicJobQuartz;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 
 /**
  * 定时任务动态加载
  */
+@Component
 public class QuartzManager {
     /**
      * 调度工厂
@@ -148,9 +152,8 @@ public class QuartzManager {
         }
     }
 
-    public static void main(String[] args) {
-
-        addJob("execute", "execute", "动态任务触发器", "动态任务触发器", DynamicJobQuartz.class, "0/60 * * * * ? ");
+    @PostConstruct
+    private void init(){
+        addJob("execute", "execute", "动态任务触发器", "动态任务触发器", DynamicJobQuartz.class, "0/5 * * * * ? ");
     }
-
 }
