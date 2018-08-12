@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	">
+	<!--
+
+	 Spring管理的quartz,xml方式只能静态加载,每次修改需要重新启动项目
+
+	-->
+	<!-- 定义触发时间 ，这边就不同了，这里必须将时间设置成无限长，因为我们要去读取数据库的时间来做为定时器的触发时间-->
+	<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean ">
+		<property name="jobDetail">
+			<bean id="jobTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<!-- 调用的类  -->
+				<property name="targetObject">
+					<!-- 这个类用来做需要完成的业务-->
+					<bean id="staticJobQuartz" class="com.github.code.quartz.StaticJobQuartz"></bean>
+				</property>
+				<!-- 调用类中的方法  -->
+				<property name="targetMethod" value="execute" />
+				<!-- 是否并发  -->
+				<property name ="concurrent" value ="false"  />
+			</bean>
+		</property>
+		<!-- cron表达式  -->
+		<property name="cronExpression" value="0/60 * * * * ?" />
+	</bean>
+
+	<!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序  -->
+	<bean id="startQuertz" lazy-init="true" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="cronTrigger" />
+			</list>
+		</property>
+	</bean>
+</beans>
