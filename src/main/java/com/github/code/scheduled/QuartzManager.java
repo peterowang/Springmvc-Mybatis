@@ -1,7 +1,8 @@
 package com.github.code.scheduled;
 
+import com.github.code.common.Constants;
 import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -15,29 +16,27 @@ public class QuartzManager {
     /**
      * 调度工厂
      */
-    private static SchedulerFactory schedulerFactory = new StdSchedulerFactory();
+    @Autowired
+    private SchedulerFactory schedulerFactory;
 
     /**
      * @Description: 添加一个定时任务
      *
-     * @param jobName 任务名
-     * @param jobGroupName  任务组名
-     * @param triggerName 触发器名
-     * @param triggerGroupName 触发器组名
+     * @param jobName 任务名 同组中的任务名不能重复
+     * @param triggerName 触发器名 同组中的触发器名不能重复
      * @param jobClass  任务
      * @param cron   时间设置，参考quartz说明文档
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void addJob(String jobName, String jobGroupName,
-                              String triggerName, String triggerGroupName, Class jobClass, String cron) {
+    public void addJob(String jobName, String triggerName, Class jobClass, String cron) {
         try {
             Scheduler scheduled = schedulerFactory.getScheduler();
             // 任务名，任务组，任务执行类
-            JobDetail jobDetail= JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroupName).build();
+            JobDetail jobDetail= JobBuilder.newJob(jobClass).withIdentity(jobName, Constants.JOB_GROUP_NAME).build();
             // 触发器
             TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
             // 触发器名,触发器组
-            triggerBuilder.withIdentity(triggerName, triggerGroupName);
+            triggerBuilder.withIdentity(triggerName, Constants.TRIGGER_GROUP_NAME);
             //使用这句可以防止定时器弥补
             triggerBuilder.startNow();
             // 触发器时间设定,不触发立即执行,等待下次Cron触发频率到达时刻开始按照Cron频率依次执行
@@ -56,17 +55,14 @@ public class QuartzManager {
     }
 
     /**
-     * @param jobName
-     * @param jobGroupName
      * @param triggerName      触发器名
-     * @param triggerGroupName 触发器组名
      * @param cron             时间设置，参考quartz说明文档
      * @Description: 修改一个任务的触发时间
      */
-    public void modifyJobTime(String jobName, String jobGroupName, String triggerName, String triggerGroupName, String cron) {
+    public void modifyJobTime(String triggerName, String cron) {
         try {
             Scheduler sched = schedulerFactory.getScheduler();
-            TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
+            TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, Constants.TRIGGER_GROUP_NAME);
             CronTrigger trigger = (CronTrigger) sched.getTrigger(triggerKey);
             if (trigger == null) {
                 return;
@@ -77,10 +73,10 @@ public class QuartzManager {
                 // 触发器
                 TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
                 // 触发器名,触发器组
-                triggerBuilder.withIdentity(triggerName, triggerGroupName);
+                triggerBuilder.withIdentity(triggerName, Constants.TRIGGER_GROUP_NAME);
                 triggerBuilder.startNow();
                 // 触发器时间设定
-                triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cron));
+                triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cron).withMisfireHandlingInstructionDoNothing());
                 // 创建Trigger对象
                 trigger = (CronTrigger) triggerBuilder.build();
                 // 方式一 ：修改一个任务的触发时间

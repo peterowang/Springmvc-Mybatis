@@ -10,6 +10,6 @@ import org.slf4j.LoggerFactory;
 public class DynamicJobQuartz implements Job {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicJobQuartz.class);
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        LOGGER.info("-------------Dynamic Job Quartz Execute Timestamp : " + System.currentTimeMillis());
+        LOGGER.info("*****************Dynamic Job Quartz Execute Timestamp : " + System.currentTimeMillis() + "*****************");
     }
 }
